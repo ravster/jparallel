@@ -2,45 +2,61 @@ require "bundler/setup"
 require "jparallel"
 
 describe Jparallel do
-  describe "#map" do
-    let(:multiply_by_2) do
-      Jparallel.map([1,2,3,4,5]) do |x|
-        x * 2
+  describe "mapping functions" do
+    let(:input_array) { (10..15).to_a }
+
+    describe "::map" do
+      let(:multiply_by_2) do
+        Jparallel.map(input_array) { |x| x * 2 }
+      end
+
+      let(:manual_poolsize) do
+        Jparallel.map(input_array, 3) { |x| x * 2 }
+      end
+
+      let(:regular_array_map) do
+        input_array.map { |x| x * 2 }
+      end
+
+      it "mimics Array#map" do
+        expect(multiply_by_2).to eql(regular_array_map)
+      end
+
+      it "works with a given poolsize" do
+        expect(manual_poolsize).to eql(regular_array_map)
       end
     end
 
-    let(:manual_poolsize) do
-      Jparallel.map([1,2,3,4,5], 200) do |x|
-        x * 2
+    describe "::map_with_index" do
+      let(:jp_map_with_index) do
+        Jparallel.map_with_index(input_array) do |x, index|
+          "#{x} is at index #{index}"
+        end
       end
-    end
 
-    it "returns an array" do
-      expect(multiply_by_2).to be_a(Array)
-    end
-
-    it "has the output in the correct order" do
-      expect(multiply_by_2).to eql([2,4,6,8,10])
-    end
-
-    it "works with a given poolsize" do
-      expect(manual_poolsize).to eql([2,4,6,8,10])
+      it "mimics Array#each_with_index#map" do
+        expect(jp_map_with_index).to eql(
+          input_array.each_with_index.map do |x, index|
+            "#{x} is at index #{index}"
+          end
+        )
+      end
     end
   end
 
-  describe "#hashmap" do
+  describe "::hashmap" do
+    let(:input_hash) { {a: 1, b: 2, c: 3} }
+
     let(:hash_by_2) do
-      Jparallel.hashmap({a: 1, b: 2, c: 3}) do |key, val|
-        val * 2
-      end
+      Jparallel.hashmap(input_hash) { |key, val| val * 2 }
     end
 
-    it "returns a hash" do
-      expect(hash_by_2).to be_a(Hash)
-    end
-
-    it "returns a new hash with correct values" do
-      expect(hash_by_2).to eql({a: 2, b: 4, c: 6})
+    it "mimics Hash[ Hash#map ]" do
+      expect(hash_by_2).to eql(
+        Hash[
+          input_hash.map { |key, val| [ key, val * 2 ] }
+        ]
+      )
     end
   end
 end
