@@ -8,7 +8,7 @@ describe Jparallel do
     let(:input_array) { (10..15).to_a }
     let(:error_array) { [2,1,0] }
 
-    describe "::map" do
+    describe "#map" do
       let(:multiply_by_2) do
         jp.map(input_array) { |x| x * 2 }
       end
@@ -34,7 +34,7 @@ describe Jparallel do
       end
     end
 
-    describe "::map_with_index" do
+    describe "#map_with_index" do
       let(:jp_map_with_index) do
         jp.map_with_index(input_array) do |x, index|
           "#{x} is at index #{index}"
@@ -65,7 +65,7 @@ describe Jparallel do
     end
   end
 
-  describe "::hashmap" do
+  describe "#hashmap" do
     let(:input_hash) { {a: 0, b: 1, c: 2} }
 
     let(:hash_by_2) do
