@@ -7,15 +7,22 @@ class Jparallel
     @pool = Thread.pool poolsize
   end
 
-  def map (input_array, &block)
+  def map (input_array, ops={}, &block)
+    timeout = ops[:timeout]
     output_array = Array.new input_array.length
+    start_time = Time.now
 
     input_array.each_with_index do |item, index|
       output_array[index] = Thread.future @pool do
-        begin
-          yield(item)
-        rescue => e
-          e
+        if !timeout.nil? &&
+            ( Time.now - start_time ) > timeout
+          TimeoutError.new("Timed out before item #{index}")
+        else
+          begin
+            yield(item)
+          rescue => e
+            e
+          end
         end
       end
     end
