@@ -18,7 +18,7 @@ describe Jparallel do
         input_array.each_with_index.map do |x, index|
           "#{x} is at index #{index}"
         end
-        )
+      )
     end
 
     let(:error_array_result) do
@@ -33,6 +33,15 @@ describe Jparallel do
 
     it "returns errors within the array" do
       expect(error_array_result.last).to be_a StandardError
+    end
+
+    it "returns timeouts in the output" do
+      result = jp.map_with_index((0..20).to_a, timeout: 0.001) do |x, index|
+        sleep(0.001)
+        x
+      end
+      expect(result.any? {|x| x.is_a?(TimeoutError)}).
+        to be(true)
     end
   end
 end

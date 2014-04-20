@@ -23,21 +23,20 @@ describe Jparallel do
       jp.map(error_array) { |x| 12 / x }
     end
 
-    it "returns an array even when there is an exception in one of the input" do
-      expect(error_array_result).to be_instance_of Array
-    end
-
     it "stores the exception in the result" do
       expect(error_array_result.last).to be_a StandardError
     end
 
-    let(:timeout_array_result) do
-      jp.map((0..20).to_a, timeout: 0.1) { |x| sleep(0.1) }
+    let(:timeout_array_map_result) do
+      jp.map((0..20).to_a, timeout: 0.01) do |x|
+        sleep(0.01)
+        x
+      end
     end
 
     it "returns timeouts in the output" do
-      expect(timeout_array_result.any?{ |x| x.is_a?(TimeoutError)}).
+      expect(timeout_array_map_result.any?{ |x| x.is_a?(TimeoutError)}).
         to be(true)
-      end
+    end
   end
 end

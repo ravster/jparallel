@@ -38,5 +38,15 @@ jp.hashmap({a: 1, b: 2}) {|x,y| "#{x} -> #{y}" }
 # -> {:a=>"a -> 1", :b=>"b -> 2"}
 ```
 
+### Timeouts
+With all the methods you can add an optional timeout value in seconds.  This timeout is checked before executing the block for each element of the input collection.  If the timeout is reached before we begin working on a work-unit, then the `TimeoutError` with the index or key of the item is placed in the output collection.
+```ruby
+jp.map((0..20).to_a, timeout: 0.1) do |x|
+  sleep(0.1)
+  x
+end
+# -> [0,1, ... ,TimeoutError, TimeoutError]
+```
+
 ## Licence
 This library is licenced under the GNU Lesser General Public Licence, version 3 or later.
